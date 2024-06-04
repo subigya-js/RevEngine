@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PE Analysis Result</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #666;
+        }
+        .section-container {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .section-header {
+            background-color: #ddd;
+            padding: 8px;
+            border-radius: 5px 5px 0 0;
+        }
+        .section-body {
+            padding: 10px;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .scrollable {
+            max-height: 300px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Basic Information Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Basic Information</h2>
+            </div>
+            <div class="section-body">
+                <p><strong>File Path:</strong> {{ pe_info.file_path }}</p>
+                <p><strong>Entry Point:</strong> {{ pe_info.entry_point }}</p>
+                <p><strong>Image Base:</strong> {{ pe_info.image_base }}</p>
+            </div>
+        </div>
+
+        <!-- Sections Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Sections</h2>
+            </div>
+            <div class="section-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Size of Raw Data</th>
+                            <th>Characteristics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for section in pe_info.sections %}
+                        <tr>
+                            <td>{{ section.name }}</td>
+                            <td>{{ section.size_of_raw_data }}</td>
+                            <td>{{ section.characteristics }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Imports Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Imports</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    {% for entry in pe_info.imports %}
+                    <li>{{ entry.dll }}
+                        <ul>
+                            {% for imp in entry.imports %}
+                            <li>{{ imp }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Exports Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Exports</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    {% for exp in pe_info.exports %}
+                    <li>{{ exp }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- YARA Rule Matches Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>YARA Rule Matches</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    {% for yara_match in pe_info.yara_matches %}
+                    <li>{{ yara_match }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Signature Matches Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Signature Matches</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    {% for sig_match in pe_info.signature_matches %}
+                    <li>{{ sig_match }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Data Processing Information Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Data Processing Information</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    {% for section in pe_info.data_processing_info %}
+                    <li>
+                        <p><strong>Name:</strong> {{ section.name }}</p>
+                        <p><strong>Virtual Address:</strong> {{ section.virtual_address }}</p>
+                        <p><strong>Size of Raw Data:</strong> {{ section.size_of_raw_data }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Binary Hex Value Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Binary Hex Value</h2>
+            </div>
+            <div class="section-body scrollable">
+                <pre>{{ pe_info.binary_hex }}</pre>
+            </div>
+        </div>
+
+        <!-- Symbol Tree Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Symbol Tree</h2>
+            </div>
+            <div class="section-body scrollable scrollable-x">
+                <pre>{{ pe_info.symbol_tree }}</pre>
+            </div>
+        </div>
+
+        <!-- Disassembly Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Disassembly Output</h2>
+            </div>
+            <div class="section-body scrollable scrollable-x">
+                <pre>{{ pe_info.disassembly_output }}</pre>
+            </div>
+        </div>
+
+        
+
+        <!-- API Analyzer Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>API Analyzer</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    {% for api in pe_info.api_usage %}
+                    <li>{{ api }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Path Analyzer Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Path Analyzer</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    {% for path in pe_info.path_analysis.paths %}
+                    <li>{{ path }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Search Results Section -->
+        {% if search_results %}
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Search Results</h2>
+            </div>
+            <div class="section-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Size of Raw Data</th>
+                            <th>Characteristics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in search_results %}
+                        <tr>
+                            <td>{{ result.name }}</td>
+                            <td>{{ result.size_of_raw_data }}</td>
+                            <td>{{ result.characteristics }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Success Message Section -->
+        {% if success_message %}
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Success</h2>
+            </div>
+            <div class="section-body">
+                <p>{{ success_message }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Error Message Section -->
+        {% if error_message %}
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Error</h2>
+            </div>
+            <div class="section-body">
+                <p>{{ error_message }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
